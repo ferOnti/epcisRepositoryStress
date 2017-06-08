@@ -1,0 +1,18 @@
+<AggregationEvent>
+	<eventTime>2017-05-24T14:58:56.591Z</eventTime>
+	<eventTimeZoneOffset>+00:00</eventTimeZoneOffset>
+	<parentID>urn:epc:id:sscc:0614141.1234567890</parentID>
+	<childEPCs>
+		<epc>urn:epc:id:sgtin:0614141.107346.2017</epc>
+		<epc>urn:epc:id:sgtin:0614141.107346.2018</epc>
+	</childEPCs>
+	<action>OBSERVE</action>
+	<bizStep>urn:epcglobal:cbv:bizstep:shipping</bizStep>
+	<disposition>urn:epcglobal:cbv:disp:in_progress</disposition>
+	<readPoint>
+		<id>urn:epc:id:sgln:0614141.00777.0</id>
+	</readPoint>
+	<bizLocation>
+		<id>urn:epc:id:sgln:0614141.00888.0</id>
+	</bizLocation>
+</AggregationEvent>

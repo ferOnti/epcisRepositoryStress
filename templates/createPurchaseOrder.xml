@@ -1,0 +1,22 @@
+<TransactionEvent>
+	<eventTime>{eventTime}</eventTime>
+	<recordTime>{recordTime}</recordTime>
+	<eventTimeZoneOffset>00:00</eventTimeZoneOffset>
+	<epcList/>
+	<action>ADD</action>
+	<bizTransactionList>
+		<bizTransaction type="urn:epcglobal:cbv:btt:po">
+			{bizTx}
+		</bizTransaction>
+	</bizTransactionList>
+	<extension>
+		<quantityList>
+			<quantityElement>
+				<epcClass>
+					{epcClass}
+				</epcClass>
+				<quantity>{quantity}</quantity>
+			</quantityElement>
+		</quantityList>
+	</extension>
+</TransactionEvent>

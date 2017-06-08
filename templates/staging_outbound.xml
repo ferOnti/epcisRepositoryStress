@@ -1,0 +1,19 @@
+<ObjectEvent>
+	<eventTime>{eventTime}</eventTime>
+	<recordTime>{recordTime}</recordTime>
+	<eventTimeZoneOffset>-08:00</eventTimeZoneOffset>
+	<id>{eventId}</id>
+	<epcList>
+{epcList}
+	</epcList>
+	<action>OBSERVE</action>
+	<bizStep>urn:epcglobal:cbv:bizstep:staging_outbound</bizStep>
+	<disposition>urn:epcglobal:cbv:disp:in_progress</disposition>
+	<readPoint><id>{readPoint}</id></readPoint>
+	<bizLocation><id>{bizLocation}</id></bizLocation>
+	<bizTransactionList>
+		<bizTransaction type="urn:epcglobal:cbv:btt:po">
+			{bizTx}
+		</bizTransaction>
+	</bizTransactionList>
+</ObjectEvent>

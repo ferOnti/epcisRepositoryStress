@@ -1,0 +1,6 @@
+{
+   "output":  "output.ecpis.xml",
+   "start": 12,
+   "sleep": 3000,
+   "channelName":"mychannel"
+}

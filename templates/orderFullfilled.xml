@@ -1,0 +1,18 @@
+<TransactionEvent>
+	<eventTime>2017-05-23T13:01:32.000Z</eventTime>
+	<recordTime>2017-05-23T13:01:41.221Z</recordTime>
+	<eventTimeZoneOffset>00:00</eventTimeZoneOffset>
+	<epcList>
+		<epc>urn:epc:id:sgtin:030001.0012345.11</epc>
+		<epc>urn:epc:id:sgtin:030001.0023459.33</epc>
+		<epc>urn:epc:id:sgtin:030001.0012745.22</epc>
+	</epcList>
+	<action>ADD</action>
+	<bizStep>urn:epcglobal:cbv:bizstep:picking</bizStep>
+	<disposition>urn:epcglobal:cbv:disp:in_progress</disposition>
+	<bizTransactionList>
+		<bizTransaction type="urn:epcglobal:cbv:btt:po">
+	  		urn:epcglobal:cbv:bt:8715131000013:A3859
+		</bizTransaction>
+	</bizTransactionList>
+</TransactionEvent>
