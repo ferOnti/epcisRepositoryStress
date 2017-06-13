@@ -27,7 +27,7 @@ lr.on('line', function (line) {
     options = {"headers": {"Content-type":"application/xml"}}
     options.body = line
 
-    var res = request('POST', 'http://13.82.50.105:3000/api/event', options)
+    var res = request('POST', config.server + '/api/event', options)
     //.done(function (res) {
         //console.log(res)    
         console.log(("" +res.getBody()).substr(0,240) + "...");

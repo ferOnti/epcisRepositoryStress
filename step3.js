@@ -9,14 +9,14 @@ var sprintf = require('sprintf').sprintf;
 var cursor 
 var iterateResolve
 var iterateReject
-var numPos
+var numCases
 var numItems
 
-function updateEpcidStep(epcList, po, eventId) {
+function updateChildrenStep(epcList, caseId, eventId) {
 	var db = global.db
 	var collection = db.collection('stress_products');
 	var criteria = {"epcid": {$in:epcList} }
-	var update   = {$set: {step: 3, eventId: eventId, bizTransaction:[po]}}
+	var update   = {$set: {step: 3, eventId: eventId}}
 	var options  = {"multi" : true}
 
 	return new Promise(function (resolve, reject) { 
@@ -31,11 +31,11 @@ function updateEpcidStep(epcList, po, eventId) {
 	})
 }
 
-function updatePurchaseOrderStep(po) {
+function updateCaseStep(caseId, eventId) {
 	var db = global.db
-	var collection = db.collection('stress_purchase_orders');
-	var criteria = {"po": po }
-	var update   = {$set: {step: 3}}
+	var collection = db.collection('stress_cases');
+	var criteria = {"case": caseId }
+	var update   = {$set: {step: 3, eventId: eventId}}
 	var options  = {}
 
 	return new Promise(function (resolve, reject) { 
@@ -43,24 +43,24 @@ function updatePurchaseOrderStep(po) {
 	    	if (err) {
 	    		reject(err)
 	    	} else {
-	    		numPos++
+	    		numCases++
 		    	resolve(res.result)
 	    	}
 	    })
 	})
 }
 
-function buildPurchaseOrder(doc) {
+function buildPrintCases(doc) {
 	step = config.steps["3"]
     var template = step.template
 
 	//process only a percentage of records
 	if (Math.random() > step.poPercentage) {
 		return new Promise(function (resolve, reject) { 
-			resolve( sprintf("no picking for purchase order %s", doc.po))
+			resolve( sprintf("no picking  %s", doc.case))
 		})
 	}
-	var collection = global.db.collection('stress_products');
+	var collection = global.db.collection('stress_cases');
 	var criteria = {epcClass: doc.epcClass, step:2}
 
 	//prepare the output xml
@@ -72,41 +72,35 @@ function buildPurchaseOrder(doc) {
 	var point = Math.round(Math.random()*1000)+1
 	var readPoint = sprintf("urn:epc:id:sgln:0012345.%05d.0", point)
 	var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
-	var bizTx = doc.po
+	var epcList = sprintf("\t\t<epc>%s</epc>", doc.case) 
+	//var bizTx = doc.po
+
 	sb = sb.replace("{eventTime}",   eventTime )
 	sb = sb.replace("{recordTime}",  eventTime )
 	sb = sb.replace("{eventId}",     eventId )
 	sb = sb.replace("{readPoint}",   readPoint )
 	sb = sb.replace("{bizLocation}", bizLocation )
-	sb = sb.replace("{bizTx}", bizTx )
-
+	sb = sb.replace("{epcList}",     epcList )
+	//sb = sb.replace("{bizTx}", bizTx )
+console.log(doc)
 	return new Promise(function (resolve, reject) { 
-		var epcListArray = []
-		var cursor = collection.find(criteria).limit(doc.quantity).toArray(function(err, docs) {
-			for (var i=0; i<docs.length; i++) {
-				var epcid = docs[i].epcid
-				epcListArray.push(epcid)
-				if (epcList!="") {epcList+="\n"}
-				epcList += "\t\t"
-        		epcList += sprintf("<epc>%s</epc>", epcid) 
-			}
-			//store the xml in the outputfile
-			sb = sb.replace("{epcList}",     epcList )
-		    if (step.saveToXml) {
-		    	//console.log(sb + "\n") 
+		//store the xml in the outputfile
+	    if (step.saveToXml) {
+			if (step.savePrettyXml) {
+			    fs.appendFileSync(config.outputXmlFile, sb + "\n");
+			} else {
 				//convert pretty xml to one line xml and save it
 				var flatXml = sb.replace(/\t/g, "").replace(/\n/g, "")
-			    //console.log(flatXml + "\n") 
-			    fs.appendFileSync(config.outputXmlFile, flatXml + "\n");
-			    //fs.appendFileSync(config.outputXmlFile, sb + "\n");
-			}
+		    	//console.log(flatXml + "\n") 
+		    	fs.appendFileSync(config.outputXmlFile, flatXml + "\n");
+		    }
+		}
 
-			//updateDB marking these products as step3, poNumber 
-			return updateEpcidStep(epcListArray, bizTx, eventId).then(() => {
-				//updateDB marking the purchase order to step3
-				updatePurchaseOrderStep(bizTx).then(resolve)
-			});
-		})
+		//updateDB marking these products as step3, poNumber 
+		return updateCaseStep(doc.case, eventId).then(() => {
+			//updateDB marking the epcid children to step3
+			updateChildrenStep(doc.epcList, doc.case, eventId).then(resolve)
+		});
 	})
 }
 
@@ -125,15 +119,15 @@ function iterateCursor() {
 				if (item == null) {
 					iterateResolve()				
 				} else {
-					buildPurchaseOrder(item).then( function () {	
+					buildPrintCases(item).then( function () {	
 	        			process.nextTick( iterateCursor)
 	        		})
 
 	        	}
 	        })
     	} else {
-			console.log("        purchase orders: %d" ,numPos)
-			console.log("        picked products: %d" ,numItems)
+			console.log("        cases   labeled: %d" ,numCases)
+			console.log("        items  in cases: %d" ,numItems)
     		iterateResolve()
     	}
     })	
@@ -143,10 +137,10 @@ function step3() {
 	var db = global.db
 	var step = config.steps["3"]
 
-	var collection = db.collection('stress_purchase_orders');
+	var collection = db.collection('stress_cases');
 
 	console.log("step 3: " +step.name)
-	numPos = 0
+	numCases = 0
 	numItems = 0
 
 	return new Promise(function (resolve, reject) { 

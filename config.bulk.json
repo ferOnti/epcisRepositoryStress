@@ -1,6 +1,8 @@
 {
-   "output":  "output.ecpis.xml",
-   "start": 12,
-   "sleep": 3000,
-   "channelName":"mychannel"
+	"serverXX": "http://13.82.50.105:3000",
+	"server": "http://10.100.0.108:3000",
+   	"output":  "output.ecpis.xml",
+   	"start": 8,
+   	"sleep": 2000,
+   	"channelName":"mychannel"
 }

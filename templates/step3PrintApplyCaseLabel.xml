@@ -1,0 +1,15 @@
+<ObjectEvent>
+	<eventTime>{eventTime}</eventTime>
+	<recordTime>{recordTime}</recordTime>
+	<eventTimeZoneOffset>-04:00</eventTimeZoneOffset>
+	<baseExtension>
+		<eventID>{eventId}</eventID>
+	</baseExtension>
+	<epcList>
+{epcList}
+	</epcList>
+	<action>ADD</action>
+	<bizStep>urn:epcglobal:cbv:bizstep:commissioning</bizStep>
+	<disposition>urn:epcglobal:cbv:disp:active</disposition>
+	<readPoint><id>{readPoint}</id></readPoint>
+</ObjectEvent>

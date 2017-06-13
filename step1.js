@@ -31,7 +31,10 @@ function iterateCursor() {
 				if (item == null) {
 					resolve()				
 				} else {
-	        		r = Math.round(Math.random()*step.randomItemsProduced)
+	        		r = Math.round(Math.random()*step.randomItemsProduced*1.3)
+	        		if (r > step.randomItemsProduced) {
+	        			r = step.randomItemsProduced
+	        		}
 					numDocs++
 					numItems += r
 
@@ -99,16 +102,18 @@ function buildObjectEventAdd(doc, n, step) {
     var epcList = ""
     var epcidPromises = []
     var epcidDoc = {}
-	var point = Math.round(Math.random()*1000)+1
-	var readPoint = sprintf("urn:epc:id:sgln:0012345.%05d.0", point)
-	var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
+	var point = Math.round(Math.random()*9999)
+	var subpoint = Math.round(Math.random()*9999)
+	var readPoint = sprintf("urn:epc:id:sgln:01234567.%04d.%05d", point,subpoint)
+	var bizLocation = sprintf("urn:epc:id:sgln:01234567.%04d.0001", point)
+
 	var thingList = ""
 
     //loop to store n item-level instances in the database and build the epcList string
 	var subSkuNumber = Math.round(Math.random()*10000)
-	for (var i = 0; i<r; i++) {
-		var epcid = sprintf("urn:epc:id:sgtin:%08d:%05d:%016d", skuNumber, subSkuNumber, i+1)  
-		var epcClass = sprintf("urn:epc:id:sgtin:%08d:%05d", skuNumber, subSkuNumber)  
+	for (var i = 0; i<n; i++) {
+		var epcid = sprintf("urn:epc:id:sgtin:%08d.%05d.%010d", skuNumber, subSkuNumber, i+1)  
+		var epcClass = sprintf("urn:epc:idpat:sgtin:%08d:%05d.*", skuNumber, subSkuNumber)  
 		if (epcList!="") {epcList+="\n"}
 		epcList += "\t\t"
         epcList += sprintf("<epc>%s</epc>", epcid) 
@@ -126,23 +131,30 @@ function buildObjectEventAdd(doc, n, step) {
 		epcidDoc.eventTime = eventTime
 		epcidDoc.recordTime = eventTime
 		epcidDoc.eventId = eventId
+		epcidDoc.parentIds = []
 
 		thing = ""
 		for (key in doc.value) {
-			if (key != "name" && key != "serialNumber" && key != "product") {
+			let keyname = key
+			if (key != "name" && key != "serialNumber" && key != "store" && key != "location") {
 				value = ""+doc.value[key]
-				epcidDoc[key] = value.trim()
-				thing += sprintf('\t\t\t<thingfield name="%s">%s</thingfield>\n', key, doc.value[key])
+				value = value.trim()
+				value = value.replace("&", "and")
+
+				if (key == "product") { keyname = "name" }
+
+				epcidDoc[keyname] = value
+				thing += sprintf('\t\t\t<vizix:thingfield name="%s">%s</vizix:thingfield>\n', keyname, value)
 			}
 		}
 		if (thing != "") {
-			thing = sprintf('\t\t<thing epcid="%s">\n%s\t\t</thing>\n', epcid, thing)
+			thing = sprintf('\t\t<vizix:thing epcid="%s">\n%s\t\t</vizix:thing>\n', epcid, thing)
 			thingList += thing
 		}
         epcidPromises.push(saveEpcidInstantiated(epcidDoc))
 	}
 	if (thingList != "") {
-		thingList = sprintf('\t<thingList>\n%s\t</thingList>\n', thingList)
+		thingList = sprintf('\t<vizix:thingList>\n%s\t</vizix:thingList>\n', thingList)
 	}
 
 	var sb = fs.readFileSync( template).toString()
@@ -156,11 +168,14 @@ function buildObjectEventAdd(doc, n, step) {
     //console.log(sb + "\n") 
 
     if (step.saveToXml) {
-		//convert pretty xml to one line xml and save it
-		var flatXml = sb.replace(/\t/g, "").replace(/\n/g, "")
-	    //console.log(flatXml + "\n") 
-	    fs.appendFileSync(config.outputXmlFile, flatXml + "\n");
-	    //fs.appendFileSync(config.outputXmlFile, sb + "\n");
+		if (step.savePrettyXml) {
+		    fs.appendFileSync(config.outputXmlFile, sb + "\n");
+		} else {
+			//convert pretty xml to one line xml and save it
+			var flatXml = sb.replace(/\t/g, "").replace(/\n/g, "")
+	    	//console.log(flatXml + "\n") 
+	    	fs.appendFileSync(config.outputXmlFile, flatXml + "\n");
+	    }
 	}
 
 	return new Promise(function (resolve, reject) { 

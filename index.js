@@ -41,7 +41,9 @@ function main() {
 
 function initGlobal() {
 	global.currentDate = new Date(config.startDate) 
-	global.eventId = config.startEventId
+	global.eventId = config.startEventId -1
+	if (global.eventId <= 0) {global.eventId=0}
+
 	global.count = 0
 }
 
@@ -121,6 +123,38 @@ function removePurchaseOrders() {
 	})
 }
 
+function removeCases() {
+	var db = global.db;
+	var collection = db.collection('stress_cases');
+
+	return new Promise(function (resolve, reject) { 
+		var stream = collection.remove({}, function (err,numberRemoved) {
+			if (err) {
+		  		console.error(err)
+		  		reject(err)
+			}
+			console.log("        removed: " + numberRemoved.result.n + " cases")
+			resolve(numberRemoved)
+		})
+	})
+}
+
+function removePallets() {
+	var db = global.db;
+	var collection = db.collection('stress_pallets');
+
+	return new Promise(function (resolve, reject) { 
+		var stream = collection.remove({}, function (err,numberRemoved) {
+			if (err) {
+		  		console.error(err)
+		  		reject(err)
+			}
+			console.log("        removed: " + numberRemoved.result.n + " pallets")
+			resolve(numberRemoved)
+		})
+	})
+}
+
 
 function removeAllDocs() {
 	console.log("remove: all documents from DB")
@@ -128,6 +162,8 @@ function removeAllDocs() {
 	return new Promise(function (resolve, reject) { 
 		removeProducts()
 			.then(removePurchaseOrders)
+			.then(removeCases)
+			.then(removePallets)
 			.then(resolve)
 	})
 }

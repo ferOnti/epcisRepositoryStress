@@ -1,14 +1,16 @@
 <ObjectEvent>
 	<eventTime>{eventTime}</eventTime>
 	<recordTime>{recordTime}</recordTime>
-	<eventTimeZoneOffset>-08:00</eventTimeZoneOffset>
-	<id>{eventId}</id>
+	<eventTimeZoneOffset>-04:00</eventTimeZoneOffset>
+	<baseExtension>
+		<eventID>{eventId}</eventID>
+	</baseExtension>
 	<epcList>
 {epcList}
 	</epcList>
 	<action>ADD</action>
-	<bizStep>urn:epcglobal:cbv:bizstep:creating_class_instance</bizStep>
-	<disposition>urn:epcglobal:cbv:disp:encoded</disposition>
+	<bizStep>urn:epcglobal:cbv:bizstep:commissioning</bizStep>
+	<disposition>urn:epcglobal:cbv:disp:active</disposition>
 	<readPoint><id>{readPoint}</id></readPoint>
 	<bizLocation><id>{bizLocation}</id></bizLocation>
 {thingList}
