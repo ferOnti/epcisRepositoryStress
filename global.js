@@ -17,7 +17,7 @@ module.exports.parentIdAsPallet = parentIdAsPallet
 module.exports.count = count
 module.exports.purchaseOrderNumber = purchaseOrderNumber
 
-module.exports.getNextCurrentDate = function(secs = 10) {
+module.exports.getNextCurrentDate = function(secs = 30) {
 	var ms = Math.round(Math.random()* secs * 1000)
 
     this.currentDate = new Date(new Date(this.currentDate).getTime() + ms);	

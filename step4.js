@@ -12,28 +12,11 @@ var thisStep = 4
 var cursor 
 var iterateResolve
 var iterateReject
-var numPos
+var numPallets
+var numCases
 var numItems
 var casesBuffer
 
-function updateEpcidStep(epcList, po, eventId) {
-	var db = global.db
-	var collection = db.collection('stress_products');
-	var criteria = {"epcid": {$in:epcList} }
-	var update   = {$set: {step: thisStep, eventId: eventId, bizTransaction:[po]}}
-	var options  = {"multi" : true}
-
-	return new Promise(function (resolve, reject) { 
-	    collection.update(criteria, update, options, function(err, res) {
-	    	if (err) {
-	    		reject(err)
-	    	} else {
-		    	numItems+= res.result.n
-		    	resolve(res.result)
-	    	}
-	    })
-	})
-}
 function updateItems(parentId, caseListArray) {
 	var db = global.db
 	var collection = db.collection('stress_products');
@@ -51,7 +34,7 @@ function updateItems(parentId, caseListArray) {
 	    	if (err) {
 	    		reject(err)
 	    	} else {
-	    		numPos++
+		    	numItems+= res.result.n
 		    	resolve(res.result)
 	    	}
 	    })
@@ -70,7 +53,8 @@ function updateCases(parentId, caseListArray) {
 	    	if (err) {
 	    		reject(err)
 	    	} else {
-	    		numPos++
+	    		numPallets++
+	    		numCases += res.result.n
 		    	resolve(res.result)
 	    	}
 	    })
@@ -130,8 +114,6 @@ function buildAggregationPallets(docs) {
 	//store the xml in the outputfile
 	fsXml.saveToXml(thisStep, eventId, sb)
 		
-	console.log(caseListArray)
-
 	return new Promise(function (resolve, reject) { 
 		//create pallet in db with a promise
 		var palletDoc = {
@@ -179,8 +161,9 @@ function iterateCursor() {
 	        	}
 	        })
     	} else {
-			console.log("        purchase orders: %d" ,numPos)
-			console.log("        picked products: %d" ,numItems)
+			console.log("         packed pallets: %d" ,numPallets)
+			console.log("           packed cases: %d" ,numCases)
+			console.log("        packed products: %d" ,numItems)
     		iterateResolve()
     	}
     })	
@@ -193,7 +176,8 @@ function step4() {
 	var collection = db.collection('stress_cases');
 
 	console.log("step " + thisStep + ": " +step.name)
-	numPos = 0
+	numPallets = 0
+	numCases = 0
 	numItems = 0
 	casesBuffer = []
 

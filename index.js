@@ -17,23 +17,58 @@ var step6 = require('./step6')
 var step7 = require('./step7')
 
 var url = config.mongodb
+var iteration = 0
+var maxIteration = 0
+var iterateResolve
+var iterateReject
 
 main();
 
+function iterate() {
+	return new Promise(function (resolve, reject) { 
+		iteration ++
+		if (maxIteration == iteration-1) {
+			iterateResolve()
+		} else {
+			return step1.execute()
+				.then(step2.execute)
+				.then(step3.execute)
+				.then(step4.execute) 
+				//.then(step5.execute)
+				//.then(step6.execute)
+				//.then(step7.execute)
+				.then(()=>{
+					process.nextTick( iterate)
+				})
+		}
+
+	})
+}
+
+function iterations() {
+	return new Promise(function (resolve, reject) { 
+		iterateResolve = resolve
+		iterateReject  = reject
+
+		iterate()
+	})
+}
+
 function main() {
 	initGlobal()
-	//removeOutput() 
+	removeOutput() 
 
 	try {
 		connect()			
 			.then(removeAllDocs)
-			.then(step1.execute)
-			.then(step2.execute)
-			.then(step3.execute)
-			.then(step4.execute) 
-			.then(step5.execute)
-			.then(step6.execute)
-			.then(step7.execute)
+			.then(iterations)
+			//.then(step1.execute)
+			//.then(step2.execute)
+			//.then(step3.execute)
+			//.then(step4.execute) 
+			//.then(step5.execute)
+			//.then(step6.execute)
+			//.then(step7.execute)
 			.then(close)
 			.then(footer)
 			//.then(console.log, console.error)
@@ -50,6 +85,9 @@ function initGlobal() {
 	global.count = 0
 	
 	fsXml.setRootPath(__dirname, config.outputPath)
+
+	iteration = 0
+	maxIteration = config.iterations
 }
 
 function connect () {

@@ -2,9 +2,9 @@ module.exports = {
 	"steps" : {
 		"1": {
 			"name" : "Encode and tag items",
-			"n" : 20,
-			"offset" : 250,
-			"randomItemsProduced" : 10,
+			"n" : 200,
+			"offset" : 0,
+			"randomItemsProduced" : 12,
 			"template" : "./templates/step1Commissioning.xml",
 			"saveToXml" : true
 		}, 
@@ -17,14 +17,14 @@ module.exports = {
 		"3": {
 			"name" : "Print and apply case label",
 			"template" : "./templates/step3PrintApplyCaseLabel.xml",
-			"poPercentage" : 0.8,
+			"poPercentage" : 0.7,
 			"saveToXml" : true
 		},
 		"4": {
 			"name" : "Pack cases into pallets",
 			"description" : "",
 			"template" : "./templates/step4PackIntoPallets.xml",
-			"poPercentage" : 0.5,
+			"poPercentage" : 0.7,
 			"saveToXml" : true
 		},
 		"5": {
@@ -51,6 +51,7 @@ module.exports = {
 	},
 	"startDate" : "May 18 2017",
 	"startEventId" : 1,
+	"iterations" : 3,
 	"outputPath" : "supplyChainDemo",
 	"removeXmlFile" : true,
 	"mongodb" : "mongodb://localhost:27017/riot_main"

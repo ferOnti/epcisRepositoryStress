@@ -56,6 +56,9 @@ module.exports.saveToXml = function(step, eventId, sb) {
 	let nextFilename = outfilename.replace(this.rootPath, "")
     fs.appendFileSync(playlistFilename, nextFilename + "\n");
 
+	//convert pretty xml to one line xml and save it		 
+	var flatXml = sb.replace(/\t/g, "").replace(/\n/g, "")		 
+	fs.appendFileSync(this.fullxmlFilename, flatXml + "\n");
 }
 
 module.exports.removeFiles = function() {
@@ -81,9 +84,9 @@ module.exports.getStatsFullxml = function () {
 	if (!fs.existsSync(this.fullxmlFilename) ) {
 		return (res)
 	} else {
-		const stats = fs.statSync(fsXml.fullxmlFilename)
+		const stats = fs.statSync(this.fullxmlFilename)
 		res.fileSizeInBytes = stats.size
-		res.fileSizeInMegabytes = fileSizeInBytes / 1000000.0
+		res.fileSizeInMegabytes = res.fileSizeInBytes / 1000000.0
 	}
 	return res
 }

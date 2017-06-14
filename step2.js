@@ -72,7 +72,7 @@ function buildPackItemIntoCase(doc) {
 	var epcClass = doc._id
 
 	//packing almost all items in a new case
-	var quantity = Math.round(Math.random()*doc.sum + doc.sum/3)
+	var quantity = Math.round(Math.random()*doc.sum + doc.sum/2)
 	if (quantity>doc.sum) {quantity = doc.sum}
 
 	return new Promise(function (resolve, reject) { 
