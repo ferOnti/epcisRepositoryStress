@@ -1,19 +1,22 @@
 var config = require('./config');
 var global = require('./global')
+var fsXml  = require('./fsXml')
+var fs     = require('fs')
+var path   = require('path')
 
 var MongoClient = require('mongodb').MongoClient
-var fs = require('fs')
 var sprintf = require('sprintf').sprintf;
 var dateFormat = require('dateformat');
 
-
+/*
 var step1 = require('./step1')
 var step2 = require('./step2')
 var step3 = require('./step3')
+var step4 = require('./step4')
 var step5 = require('./step5')
 var step6 = require('./step6')
 var step7 = require('./step7')
-
+*/
 var url = config.mongodb
 
 main();
@@ -22,13 +25,14 @@ function main() {
 	initGlobal()
 	removeOutput() 
 
+/*			
 	try {
 		connect()
 			.then(removeAllDocs)
 			.then(step1.execute)
 			.then(step2.execute)
 			.then(step3.execute)
-			//.then(step4.execute) aggregation is not complete
+			.then(step4.execute) 
 			.then(step5.execute)
 			.then(step6.execute)
 			.then(step7.execute)
@@ -37,6 +41,7 @@ function main() {
 	} catch (err) {
   		console.error(err)
 	}
+*/
 }
 
 function initGlobal() {
@@ -45,6 +50,8 @@ function initGlobal() {
 	if (global.eventId <= 0) {global.eventId=0}
 
 	global.count = 0
+	
+	//fsXml.setRootPath(path.join(__dirname, config.outputPath))
 }
 
 function connect () {
@@ -85,9 +92,7 @@ function footer() {
 
 function removeOutput() {
 	if (config.removeXmlFile) {
-		fs.unlink(config.outputXmlFile, function (err) {
-			//console.log(err)
-		})
+		fsXml.removeFiles()
 	}
 }
 

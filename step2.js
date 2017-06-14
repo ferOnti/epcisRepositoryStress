@@ -4,12 +4,15 @@ var config = require('./config')
 var MongoClient = require('mongodb').MongoClient
 var dateFormat = require('dateformat');
 var fs = require('fs')
+var fsXml = require('./fsXml')
 var sprintf = require('sprintf').sprintf;
+var thisStep = 2
 
 var cursor 
 var iterateResolve
 var iterateReject
 var numCases
+var numItems
 
 function updateEpcidStep(epcClass, epcListArray, parentId) {
 	var db = global.db
@@ -48,7 +51,7 @@ function updateCaseID(caseDoc) {
 }
 
 function buildPackItemIntoCase(doc) {
-	step = config.steps["2"]
+	step = config.steps[thisStep]
     var template = step.template
      
 	//process only a percentage of records
@@ -98,19 +101,11 @@ function buildPackItemIntoCase(doc) {
 			sb = sb.replace("{bizLocation}", bizLocation )
 			sb = sb.replace("{epcList}",     epcList )
 
-		    if (step.saveToXml) {
-				if (step.savePrettyXml) {
-				    fs.appendFileSync(config.outputXmlFile, sb + "\n");
-				} else {
-					//convert pretty xml to one line xml and save it
-					var flatXml = sb.replace(/\t/g, "").replace(/\n/g, "")
-			    	//console.log(flatXml + "\n") 
-			    	fs.appendFileSync(config.outputXmlFile, flatXml + "\n");
-			    }
-			}
+			//store the xml in the outputfile
+			fsXml.saveToXml(thisStep, eventId, sb)
 
 			numCases++
-
+			numItems += quantity
 			//update db with a promise
 			var caseDoc = {
 				case:     parentIdAsCase, 
@@ -118,7 +113,7 @@ function buildPackItemIntoCase(doc) {
 				epcClassQuantity: epcClassQuantity,
 				quantity: quantity,
 				eventId:  eventId, 
-				step:     2, 
+				step:     thisStep, 
 				epcList:  epcListArray
 			}
 			updateEpcidStep(epcClass, epcListArray, parentIdAsCase)
@@ -132,7 +127,7 @@ function buildPackItemIntoCase(doc) {
 }
 
 function iterateCursor() {
-	step = config.steps["2"]
+	step = config.steps[thisStep]
 
 	count  = (++global.count)
 
@@ -155,6 +150,7 @@ function iterateCursor() {
 	        })
     	} else {
 			console.log("        packed    cases: %d" ,numCases)
+			console.log("        items  in cases: %d" ,numItems)
     		iterateResolve()
     	}
     })	
@@ -162,11 +158,12 @@ function iterateCursor() {
 
 function step2() {
 	var db = global.db
-	var step = config.steps["2"]
+	var step = config.steps[thisStep]
 
 	var collection = db.collection('stress_products');
 	numCases = 0
-	console.log("step 2: " +step.name)
+	numItems = 0
+	console.log("step " + thisStep + ": " +step.name)
 
 	return new Promise(function (resolve, reject) { 
 		pipeline = [

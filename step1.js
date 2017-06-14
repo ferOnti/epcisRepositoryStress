@@ -4,7 +4,9 @@ var config = require('./config')
 var MongoClient = require('mongodb').MongoClient
 var dateFormat = require('dateformat');
 var fs = require('fs')
+var fsXml = require('./fsXml')
 var sprintf = require('sprintf').sprintf;
+var thisStep = 1
 
 var cursor 
 var iterateResolve
@@ -16,7 +18,7 @@ var numItems
 function iterateCursor() {
 	resolve = iterateResolve
 	reject  = iterateReject
-	step = config.steps["1"]
+	step = config.steps[thisStep]
 
 	count  = (++global.count)
 	//if (count % 1000 == 0) {console.log("      " + count)}
@@ -54,7 +56,7 @@ function iterateCursor() {
 function step1() {
 
 	var db = global.db
-	var step = config.steps["1"]
+	var step = config.steps[thisStep]
 
 	var collection = db.collection('products');
 	var limit = step.n
@@ -63,7 +65,7 @@ function step1() {
 	global.count = 0
 	numDocs = 0
 	numItems = 0
-	console.log("step 1: " +step.name)
+	console.log("step " + thisStep + ": " +step.name)
 
     // Grab a cursor using the find
     cursor = collection.find().limit(limit).skip(skip);
@@ -122,7 +124,7 @@ function buildObjectEventAdd(doc, n, step) {
 		epcidDoc = {}
 		epcidDoc.epcid = epcid
 		epcidDoc.name = doc.value.product.trim()
-		epcidDoc.step = 1
+		epcidDoc.step = thisStep
 		epcidDoc.epcClass = epcClass
 		epcidDoc.bizStep = "urn:epcglobal:cbv:bizstep:creating_class_instance"
 		epcidDoc.bizLocation = bizLocation
@@ -167,16 +169,8 @@ function buildObjectEventAdd(doc, n, step) {
 	sb = sb.replace("{thingList}",   thingList)
     //console.log(sb + "\n") 
 
-    if (step.saveToXml) {
-		if (step.savePrettyXml) {
-		    fs.appendFileSync(config.outputXmlFile, sb + "\n");
-		} else {
-			//convert pretty xml to one line xml and save it
-			var flatXml = sb.replace(/\t/g, "").replace(/\n/g, "")
-	    	//console.log(flatXml + "\n") 
-	    	fs.appendFileSync(config.outputXmlFile, flatXml + "\n");
-	    }
-	}
+	//store the xml in the outputfile
+	fsXml.saveToXml(thisStep, eventId, sb)
 
 	return new Promise(function (resolve, reject) { 
 		var allEpcidPromises = Promise.all(epcidPromises)

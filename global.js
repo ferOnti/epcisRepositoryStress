@@ -5,13 +5,15 @@ var db
 var currentDate
 var eventId = 0
 var count = 0
-var parentIdAsCase = 0
+var parentIdAsCase   = 0
+var parentIdAsPallet = 0
 var purchaseOrderNumber = 0
 
 module.exports.db = db
 module.exports.currentDate = currentDate
 module.exports.eventId = eventId
 module.exports.parentIdAsCase = parentIdAsCase
+module.exports.parentIdAsPallet = parentIdAsPallet
 module.exports.count = count
 module.exports.purchaseOrderNumber = purchaseOrderNumber
 
@@ -31,6 +33,11 @@ module.exports.getNextEventId = function() {
 module.exports.getNextParentIdFromCases = function() {
 	this.parentIdAsCase ++
     return sprintf("urn:epc:id:sscc:5012345.%010d",this.parentIdAsCase)
+}
+
+module.exports.getNextParentIdFromPallets = function() {
+	this.parentIdAsPallet ++
+    return sprintf("urn:epc:id:sscc:0000123.%010d",this.parentIdAsPallet)
 }
 
 module.exports.getNextPurchaseOrderNumber = function() {

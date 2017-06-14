@@ -4,7 +4,9 @@ var config = require('./config')
 var MongoClient = require('mongodb').MongoClient
 var dateFormat = require('dateformat');
 var fs = require('fs')
+var fsXml = require('./fsXml')
 var sprintf = require('sprintf').sprintf;
+var thisStep = 3
 
 var cursor 
 var iterateResolve
@@ -16,7 +18,7 @@ function updateChildrenStep(epcList, caseId, eventId) {
 	var db = global.db
 	var collection = db.collection('stress_products');
 	var criteria = {"epcid": {$in:epcList} }
-	var update   = {$set: {step: 3, eventId: eventId}}
+	var update   = {$set: {step: thisStep, eventId: eventId}}
 	var options  = {"multi" : true}
 
 	return new Promise(function (resolve, reject) { 
@@ -35,7 +37,7 @@ function updateCaseStep(caseId, eventId) {
 	var db = global.db
 	var collection = db.collection('stress_cases');
 	var criteria = {"case": caseId }
-	var update   = {$set: {step: 3, eventId: eventId}}
+	var update   = {$set: {step: thisStep, eventId: eventId}}
 	var options  = {}
 
 	return new Promise(function (resolve, reject) { 
@@ -51,7 +53,7 @@ function updateCaseStep(caseId, eventId) {
 }
 
 function buildPrintCases(doc) {
-	step = config.steps["3"]
+	step = config.steps[thisStep]
     var template = step.template
 
 	//process only a percentage of records
@@ -73,7 +75,7 @@ function buildPrintCases(doc) {
 	var readPoint = sprintf("urn:epc:id:sgln:0012345.%05d.0", point)
 	var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
 	var epcList = sprintf("\t\t<epc>%s</epc>", doc.case) 
-	//var bizTx = doc.po
+	var bizTx = global.getNextPurchaseOrderNumber()
 
 	sb = sb.replace("{eventTime}",   eventTime )
 	sb = sb.replace("{recordTime}",  eventTime )
@@ -81,20 +83,11 @@ function buildPrintCases(doc) {
 	sb = sb.replace("{readPoint}",   readPoint )
 	sb = sb.replace("{bizLocation}", bizLocation )
 	sb = sb.replace("{epcList}",     epcList )
-	//sb = sb.replace("{bizTx}", bizTx )
-console.log(doc)
+	sb = sb.replace("{bizTx}", bizTx )
+
 	return new Promise(function (resolve, reject) { 
 		//store the xml in the outputfile
-	    if (step.saveToXml) {
-			if (step.savePrettyXml) {
-			    fs.appendFileSync(config.outputXmlFile, sb + "\n");
-			} else {
-				//convert pretty xml to one line xml and save it
-				var flatXml = sb.replace(/\t/g, "").replace(/\n/g, "")
-		    	//console.log(flatXml + "\n") 
-		    	fs.appendFileSync(config.outputXmlFile, flatXml + "\n");
-		    }
-		}
+		fsXml.saveToXml(thisStep, eventId, sb)
 
 		//updateDB marking these products as step3, poNumber 
 		return updateCaseStep(doc.case, eventId).then(() => {
@@ -105,7 +98,7 @@ console.log(doc)
 }
 
 function iterateCursor() {
-	step = config.steps["3"]
+	step = config.steps[thisStep]
 
 	count  = (++global.count)
 
@@ -135,11 +128,11 @@ function iterateCursor() {
 
 function step3() {
 	var db = global.db
-	var step = config.steps["3"]
+	var step = config.steps[thisStep]
 
 	var collection = db.collection('stress_cases');
 
-	console.log("step 3: " +step.name)
+	console.log("step " + thisStep + ": " +step.name)
 	numCases = 0
 	numItems = 0
 
