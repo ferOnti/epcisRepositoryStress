@@ -1,3 +1,5 @@
 output.ecpis.xml
 node_modules
+.DS_Store
+supplyChainDemo
 

@@ -8,7 +8,6 @@ var MongoClient = require('mongodb').MongoClient
 var sprintf = require('sprintf').sprintf;
 var dateFormat = require('dateformat');
 
-/*
 var step1 = require('./step1')
 var step2 = require('./step2')
 var step3 = require('./step3')
@@ -16,18 +15,17 @@ var step4 = require('./step4')
 var step5 = require('./step5')
 var step6 = require('./step6')
 var step7 = require('./step7')
-*/
+
 var url = config.mongodb
 
 main();
 
 function main() {
 	initGlobal()
-	removeOutput() 
+	//removeOutput() 
 
-/*			
 	try {
-		connect()
+		connect()			
 			.then(removeAllDocs)
 			.then(step1.execute)
 			.then(step2.execute)
@@ -37,11 +35,11 @@ function main() {
 			.then(step6.execute)
 			.then(step7.execute)
 			.then(close)
-			.then(footer, console.error)
+			.then(footer)
+			//.then(console.log, console.error)
 	} catch (err) {
   		console.error(err)
 	}
-*/
 }
 
 function initGlobal() {
@@ -51,7 +49,7 @@ function initGlobal() {
 
 	global.count = 0
 	
-	//fsXml.setRootPath(path.join(__dirname, config.outputPath))
+	fsXml.setRootPath(__dirname, config.outputPath)
 }
 
 function connect () {
@@ -61,7 +59,7 @@ function connect () {
   			if (err) {
   				return reject(err)
   			}
-  			console.log("Connected correctly to server");
+  			console.log("        connected correctly to server");
   			global.db = db;
   			resolve(db);
   		})
@@ -79,15 +77,18 @@ function close () {
 }
 
 function footer() {
-	const stats = fs.statSync(config.outputXmlFile)
-	const fileSizeInBytes = stats.size
-	const fileSizeInMegabytes = fileSizeInBytes / 1000000.0
-	console.log("    output file: " + config.outputXmlFile)
-	console.log(sprintf("      file size: %3.2f Mb.", fileSizeInMegabytes))
+	var stats = fsXml.getStatsFullxml()
+	console.log("  output folder: " + stats.rootPath)
+	console.log("    output file: " + stats.filename)
+	console.log(sprintf("      file size: %3.2f Mb.", stats.fileSizeInMegabytes))
 
 	console.log("   total events: " + global.eventId)
 	console.log("    from (date): " + new Date(config.startDate) )
 	console.log("      to (date): " + global.currentDate)
+
+	return new Promise(function(resolve, reject) {
+		resolve()
+	})
 }
 
 function removeOutput() {
