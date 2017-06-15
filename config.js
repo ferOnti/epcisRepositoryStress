@@ -2,7 +2,7 @@ module.exports = {
 	"steps" : {
 		"1": {
 			"name" : "Encode and tag items",
-			"n" : 200,
+			"n" : 10,
 			"offset" : 0,
 			"randomItemsProduced" : 12,
 			"template" : "./templates/step1Commissioning.xml",
@@ -51,7 +51,7 @@ module.exports = {
 	},
 	"startDate" : "May 18 2017",
 	"startEventId" : 1,
-	"iterations" : 3,
+	"iterations" : 2,
 	"outputPath" : "supplyChainDemo",
 	"removeXmlFile" : true,
 	"mongodb" : "mongodb://localhost:27017/riot_main"
