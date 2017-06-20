@@ -73,7 +73,9 @@ function buildPrintCases(doc) {
 	var sb    = fs.readFileSync( template).toString()
 	var point = Math.round(Math.random()*1000)+1
 	var readPoint = sprintf("urn:epc:id:sgln:0012345.%05d.0", point)
-	var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
+	//var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
+	var bizLocation = "urn:epc:id:sgln:01234567.4650.0001"
+
 	var epcList = sprintf("\t\t<epc>%s</epc>", doc.case) 
 	var bizTx = global.getNextPurchaseOrderNumber()
 

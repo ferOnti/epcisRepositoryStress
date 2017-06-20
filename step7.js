@@ -4,19 +4,27 @@ var config = require('./config')
 var MongoClient = require('mongodb').MongoClient
 var dateFormat = require('dateformat');
 var fs = require('fs')
+var fsXml = require('./fsXml')
 var sprintf = require('sprintf').sprintf;
+
+var thisStep = 7
 
 var cursor 
 var iterateResolve
 var iterateReject
 var numPos
+var numCases
 var numItems
 
-function updateEpcidStep(epcList, po, eventId) {
+function updateItems(parentId, caseListArray) {
 	var db = global.db
 	var collection = db.collection('stress_products');
-	var criteria = {"epcid": {$in:epcList} }
-	var update   = {$set: {step: 7, eventId: eventId}}
+	//var criteria = {"case": {"$in": caseListArray} }
+	var criteria = { parentIds : {"$in": caseListArray}  }
+
+	var update   = {
+		$set: {step: thisStep, "bizStep": "urn:epcglobal:cbv:bizstep:shipping"},
+	}
 	var options  = {"multi" : true}
 
 	return new Promise(function (resolve, reject) { 
@@ -31,37 +39,56 @@ function updateEpcidStep(epcList, po, eventId) {
 	})
 }
 
-function updatePurchaseOrderStep(po) {
+function updateCases(parentId, caseListArray) {
 	var db = global.db
-	var collection = db.collection('stress_purchase_orders');
-	var criteria = {"po": po }
-	var update   = {$set: {step: 7}}
-	var options  = {}
+	var collection = db.collection('stress_cases');
+	var criteria = {"case": {"$in": caseListArray} }
+	var update   = {$set: {step: thisStep, bizStep: "urn:epcglobal:cbv:bizstep:shipping"}}
+	var options  = {"multi" : true}
 
 	return new Promise(function (resolve, reject) { 
 	    collection.update(criteria, update, options, function(err, res) {
 	    	if (err) {
 	    		reject(err)
 	    	} else {
-	    		numPos++
+	    		numCases += res.result.n
 		    	resolve(res.result)
 	    	}
 	    })
 	})
 }
 
-function buildDepartingPurchaseOrder(doc) {
-	step = config.steps["7"]
+function updatePalletDoc(palletId) {
+	var db = global.db
+	var collection = db.collection('stress_pallets');
+	var criteria = {"pallet": palletId }
+	var update   = {$set: {step: thisStep, bizStep: "sending"}}
+	var options  = {"multi" : false}
+
+	return new Promise(function (resolve, reject) { 
+	    collection.update(criteria, update, options, function(err, res) {
+	    	if (err) {
+	    		reject(err)
+	    	} else {
+	    		numPallets++
+		    	resolve(res.result)
+	    	}
+	    })
+	})
+}
+
+function buildReceivePallets(doc) {
+	step = config.steps[thisStep]
     var template = step.template
 
 	//process only a percentage of records
 	if (Math.random() > step.poPercentage) {
 		return new Promise(function (resolve, reject) { 
-			resolve( sprintf("no departing products for purchase order %s", doc.po))
+			resolve( sprintf("no sending"))
 		})
 	}
-	var collection = global.db.collection('stress_products');
-	var criteria = {bizTransaction: doc.po, step:6}
+	var collection = global.db.collection('stress_cases');
+	var criteria = {step:4, parentId: doc.pallet}
 
 	//prepare the output xml
 	var epcList = ""
@@ -71,48 +98,33 @@ function buildDepartingPurchaseOrder(doc) {
 	var sb    = fs.readFileSync( template).toString()
 	var point = Math.round(Math.random()*1000)+1
 	var readPoint = sprintf("urn:epc:id:sgln:0012345.%05d.0", point)
-	var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
-	var bizTx = doc.po
+	//var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
+	var bizLocation = "urn:epc:id:sgln:09876543.0000.9876"
+	//var bizTx = doc.po
 	sb = sb.replace("{eventTime}",   eventTime )
 	sb = sb.replace("{recordTime}",  eventTime )
 	sb = sb.replace("{eventId}",     eventId )
 	sb = sb.replace("{readPoint}",   readPoint )
 	sb = sb.replace("{bizLocation}", bizLocation )
-	sb = sb.replace("{bizTx}", bizTx )
+	//sb = sb.replace("{bizTx}", bizTx )
+
 
 	return new Promise(function (resolve, reject) { 
-		var epcListArray = []
-		var cursor = collection.find(criteria).toArray(function(err, docs) {
-			//console.log(docs)
-			for (var i=0; i<docs.length; i++) {
-				var epcid = docs[i].epcid
-				epcListArray.push(epcid)
-				if (epcList!="") {epcList+="\n"}
-				epcList += "\t\t"
-        		epcList += sprintf("<epc>%s</epc>", epcid) 
-			}
-			//store the xml in the outputfile
-			sb = sb.replace("{epcList}",     epcList )
-		    if (step.saveToXml) {
-		    	//console.log(sb + "\n") 
-				//convert pretty xml to one line xml and save it
-				var flatXml = sb.replace(/\t/g, "").replace(/\n/g, "")
-			    //console.log(flatXml + "\n") 
-			    fs.appendFileSync(config.outputXmlFile, flatXml + "\n");
-			    //fs.appendFileSync(config.outputXmlFile, sb + "\n");
-			}
+		//store the xml in the outputfile
+		fsXml.saveToXml(thisStep, eventId, sb)
+		caseListArray = doc.caseList
+		updatePalletDoc(doc.pallet)
+			.then( () => {return updateCases(doc.pallet, caseListArray)} )
+			.then( () => {return updateItems(doc.pallet, caseListArray)} )
+			.then( function(res) {
+				resolve()
+			})
 
-			//updateDB marking these products as step3, poNumber 
-			return updateEpcidStep(epcListArray, bizTx, eventId).then(() => {
-				//updateDB marking the purchase order to step5
-				updatePurchaseOrderStep(bizTx).then(resolve)
-			});
-		})
 	})
 }
 
 function iterateCursor() {
-	step = config.steps["7"]
+	step = config.steps[thisStep]
 
 	count  = (++global.count)
 
@@ -126,29 +138,31 @@ function iterateCursor() {
 				if (item == null) {
 					iterateResolve()				
 				} else {
-					buildDepartingPurchaseOrder(item).then( function () {	
+					buildReceivePallets(item).then( function () {	
 	        			process.nextTick( iterateCursor)
 	        		})
 
 	        	}
 	        })
     	} else {
-			console.log("        purchase orders: %d" ,numPos)
-			console.log("          sent products: %d" ,numItems)
+			console.log("           sent pallets: %d" ,numPallets)
+			console.log("             sent cases: %d" ,numCases)
+			console.log("             sent items: %d" ,numItems)
     		iterateResolve()
     	}
     })	
 }
 
-function step7() {
+function step6() {
 	var db = global.db
-	var step = config.steps["7"]
+	var step = config.steps[thisStep]
 
-	var collection = db.collection('stress_purchase_orders');
+	var collection = db.collection('stress_pallets');
 
-	console.log("step 7: " +step.name)
+	console.log("step " + thisStep + ": " +step.name)
 	numItems = 0
-	numPos = 0
+	numCases = 0
+	numPallets = 0
 
 	return new Promise(function (resolve, reject) { 
 	    cursor = collection.find({step:6});
@@ -161,7 +175,7 @@ function step7() {
 	})
 }
 
-module.exports.execute = step7
+module.exports.execute = step6
 
 
 

@@ -63,7 +63,7 @@ function updateCases(parentId, caseListArray) {
 
 function updatePalletDoc(palletDoc) {
 	var db = global.db
-	var collection = db.collection('stress_cases');
+	var collection = db.collection('stress_pallets');
 
 	return new Promise(function (resolve, reject) { 
 	    collection.insert(palletDoc, function(err, res) {
@@ -79,6 +79,7 @@ function updatePalletDoc(palletDoc) {
 function buildAggregationPallets(docs) {
 	step = config.steps[thisStep]
     var template = step.template
+    var template2 = step.template2
 
 	var collection = global.db.collection('stress_products');
 	//var criteria = {epcClass: doc.epcClass, step:2}
@@ -87,13 +88,28 @@ function buildAggregationPallets(docs) {
 	var epcList = ""
     var now       = global.getNextCurrentDate()
 	var eventTime = dateFormat(now, "isoUtcDateTime");
-	var eventId   = global.getNextEventId()
 	var sb        = fs.readFileSync( template).toString()
 	var point     = Math.round(Math.random()*1000)+1
 	var readPoint = sprintf("urn:epc:id:sgln:0012345.%05d.0", point)
-	var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
+	//var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
+	var bizLocation = "urn:epc:id:sgln:01234567.4650.0001"
 	var palletId  = global.getNextParentIdFromPallets()
 
+	//first template (step4)		
+	var eventId   = global.getNextEventId()
+	sb = sb.replace("{eventTime}",   eventTime )
+	sb = sb.replace("{recordTime}",  eventTime )
+	sb = sb.replace("{eventId}",     eventId )
+	sb = sb.replace("{readPoint}",   readPoint )
+	sb = sb.replace("{bizLocation}", bizLocation )
+	sb = sb.replace("{epcList}", sprintf("\t\t<epc>%s</epc>", palletId) )
+	//store the xml in the outputfile
+	fsXml.saveToXml(thisStep, eventId, sb)
+
+
+	//second template (step5)		
+	var sb2        = fs.readFileSync( template2).toString()
+	eventId   = global.getNextEventId()
 	epcList = ""
 	var caseListArray = []
 	for (docIndex in docs) {
@@ -103,21 +119,22 @@ function buildAggregationPallets(docs) {
 		epcList += "\t\t"
    		epcList += sprintf("<epc>%s</epc>", doc.case) 
 	}
-	sb = sb.replace("{eventTime}",   eventTime )
-	sb = sb.replace("{recordTime}",  eventTime )
-	sb = sb.replace("{eventId}",     eventId )
-	sb = sb.replace("{readPoint}",   readPoint )
-	sb = sb.replace("{bizLocation}", bizLocation )
-	sb = sb.replace("{parentID}", palletId )
-	sb = sb.replace("{epcList}", epcList )
+	sb2 = sb2.replace("{eventTime}",   eventTime )
+	sb2 = sb2.replace("{recordTime}",  eventTime )
+	sb2 = sb2.replace("{eventId}",     eventId )
+	sb2 = sb2.replace("{readPoint}",   readPoint )
+	sb2 = sb2.replace("{bizLocation}", bizLocation )
+	sb2 = sb2.replace("{parentID}", palletId )
+	sb2 = sb2.replace("{epcList}", epcList )
 
 	//store the xml in the outputfile
-	fsXml.saveToXml(thisStep, eventId, sb)
-		
+	fsXml.saveToXml(thisStep+1, eventId, sb2)
+
+
 	return new Promise(function (resolve, reject) { 
 		//create pallet in db with a promise
 		var palletDoc = {
-			case:     palletId, 
+			pallet:     palletId, 
 			eventId:  eventId, 
 			step:     thisStep, 
 			caseList:  caseListArray
@@ -161,6 +178,8 @@ function iterateCursor() {
 	        	}
 	        })
     	} else {
+			console.log("       labelled pallets: %d" ,numPallets)
+			console.log("step 5: Pack cases into pallets (*)")
 			console.log("         packed pallets: %d" ,numPallets)
 			console.log("           packed cases: %d" ,numCases)
 			console.log("        packed products: %d" ,numItems)

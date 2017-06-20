@@ -107,7 +107,8 @@ function buildObjectEventAdd(doc, n, step) {
 	var point = Math.round(Math.random()*9999)
 	var subpoint = Math.round(Math.random()*9999)
 	var readPoint = sprintf("urn:epc:id:sgln:01234567.%04d.%05d", point,subpoint)
-	var bizLocation = sprintf("urn:epc:id:sgln:01234567.%04d.0001", point)
+	//var bizLocation = sprintf("urn:epc:id:sgln:01234567.%04d.0001", point)
+	var bizLocation = "urn:epc:id:sgln:01234567.4650.0001"
 
 	var thingList = ""
 

@@ -2,9 +2,9 @@ module.exports = {
 	"steps" : {
 		"1": {
 			"name" : "Encode and tag items",
-			"n" : 10,
+			"n" : 30,
 			"offset" : 0,
-			"randomItemsProduced" : 12,
+			"randomItemsProduced" : 7,
 			"template" : "./templates/step1Commissioning.xml",
 			"saveToXml" : true
 		}, 
@@ -21,30 +21,34 @@ module.exports = {
 			"saveToXml" : true
 		},
 		"4": {
-			"name" : "Pack cases into pallets",
+			"name" : "Print pallet label",
 			"description" : "",
-			"template" : "./templates/step4PackIntoPallets.xml",
+			"template" : "./templates/step4PrintPalletLabel.xml",
+			"template2" : "./templates/step5PackIntoPallets.xml",
 			"poPercentage" : 0.7,
 			"saveToXml" : true
 		},
 		"5": {
-			"name" : "Print pallet label",
-			"description" : "",
-			"template" : "./templates/staging_outbound.xml",
-			"poPercentage" : 0.8,
-			"saveToXml" : true
+			"name" : "Pack cases into pallets",
 		},
 		"6": {
 			"name" : "Ship the pallet",
 			"description" : "",
-			"template" : "./templates/loading.xml",
+			"template" : "./templates/step6ShipPallet.xml",
 			"poPercentage" : 0.8,
 			"saveToXml" : true
 		},
 		"7": {
 			"name" : "receive the pallet",
 			"description" : "",
-			"template" : "./templates/departing.xml",
+			"template" : "./templates/step7ReceivePallet.xml",
+			"poPercentage" : 0.8,
+			"saveToXml" : true
+		},
+		"8": {
+			"name" : "Put away(store) the pallet",
+			"description" : "",
+			"template" : "./templates/step8PutAwayPallet.xml",
 			"poPercentage" : 0.8,
 			"saveToXml" : true
 		}

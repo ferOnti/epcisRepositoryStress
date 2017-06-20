@@ -2,7 +2,7 @@
 	"serverXX": "http://13.82.50.105:3000",
 	"server": "http://10.100.0.108:3000",
    	"output":  "supplyChainDemo/output.xml",
-   	"start": 46,
-   	"sleep": 1000,
+   	"start": 0,
+   	"sleep": 10000,
    	"channelName":"mychannel"
 }
