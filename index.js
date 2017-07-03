@@ -136,7 +136,7 @@ function removeProducts() {
 		  		console.error(err)
 		  		reject(err)
 			}
-			if (numberRemoved.result && numberRemoved.result.n) {
+			if (numberRemoved && numberRemoved.result && numberRemoved.result.n) {
 				console.log("        removed: " + numberRemoved.result.n + " products")
 			}
 			resolve(numberRemoved)
@@ -154,7 +154,7 @@ function removePurchaseOrders() {
 		  		console.error(err)
 		  		reject(err)
 			}
-			if (numberRemoved.result && numberRemoved.result.n) {
+			if (numberRemoved && numberRemoved.result && numberRemoved.result.n) {
 				console.log("        removed: " + numberRemoved.result.n + " purchase orders")
 			}
 			resolve(numberRemoved)
@@ -172,7 +172,7 @@ function removeCases() {
 		  		console.error(err)
 		  		reject(err)
 			}
-			if (numberRemoved.result && numberRemoved.result.n) {
+			if (numberRemoved && numberRemoved.result && numberRemoved.result.n) {
 				console.log("        removed: " + numberRemoved.result.n + " cases")
 			}
 			resolve(numberRemoved)
@@ -190,7 +190,7 @@ function removePallets() {
 		  		console.error(err)
 		  		reject(err)
 			}
-			if (numberRemoved.result && numberRemoved.result.n) {
+			if (numberRemoved && numberRemoved.result && numberRemoved.result.n) {
 				console.log("        removed: " + numberRemoved.result.n + " pallets")
 			}
 			resolve(numberRemoved)
