@@ -91,7 +91,6 @@ function buildReceivePallets(doc) {
 	var criteria = {step:4, parentId: doc.pallet}
 
 	//prepare the output xml
-	var epcList = ""
     var now = global.getNextCurrentDate()
 	var eventTime = dateFormat(now, "isoUtcDateTime");
 	var eventId   = global.getNextEventId()
@@ -100,12 +99,15 @@ function buildReceivePallets(doc) {
 	var readPoint = sprintf("urn:epc:id:sgln:0012345.%05d.0", point)
 	//var bizLocation = sprintf("urn:epc:id:sgln:0012345.%04d", point)
 	var bizLocation = "urn:epc:id:sgln:09876543.0000.9876"
+	var epcList = sprintf("\t\t<epc>%s</epc>", doc.pallet) 
+
 	//var bizTx = doc.po
 	sb = sb.replace("{eventTime}",   eventTime )
 	sb = sb.replace("{recordTime}",  eventTime )
 	sb = sb.replace("{eventId}",     eventId )
 	sb = sb.replace("{readPoint}",   readPoint )
 	sb = sb.replace("{bizLocation}", bizLocation )
+	sb = sb.replace("{epcList}", epcList )
 	//sb = sb.replace("{bizTx}", bizTx )
 
 

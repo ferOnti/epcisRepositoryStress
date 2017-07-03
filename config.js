@@ -2,7 +2,7 @@ module.exports = {
 	"steps" : {
 		"1": {
 			"name" : "Encode and tag items",
-			"n" : 30,
+			"n" : 3000,
 			"offset" : 0,
 			"randomItemsProduced" : 7,
 			"template" : "./templates/step1Commissioning.xml",
