@@ -20,7 +20,8 @@ lr.on('error', function (err) {
 lr.on('line', function (line) {
     count ++
     if (skip > count) { return }
-    console.log("=============== " + count)
+    var time = new Date().getTime() & 100000
+    console.log("=============== " + count + "    " + time)
 
     options = {
         "headers": {"Content-type":"application/xml", "channel": config.channelName },
