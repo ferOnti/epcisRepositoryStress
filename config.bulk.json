@@ -1,8 +1,10 @@
 {
-	"server": "http://13.82.50.105:3000",
+	"server": "http://10.100.1.209:3000",
+	"server2": "http://13.82.50.105:3000",
 	"serverX": "http://10.100.0.108:3000",
    	"output":  "supplyChainDemo/output.xml",
    	"start": 0,
-   	"sleep": 10,
-   	"channelName":"mychannel"
+   	"sleep": 10000,
+   	"channelName": "only2",
+   	"channelName2": "externalchannel"
 }

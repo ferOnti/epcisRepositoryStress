@@ -21,28 +21,35 @@ lr.on('line', function (line) {
     count ++
     if (skip > count) { return }
     console.log("=============== " + count)
-    //if (count > skip+1) { console.log(count); sleep.sleep(1); return }  
- 
-    //console.log(line)
-    options = {"headers": {"Content-type":"application/xml"}}
-    options.body = line
 
-    var res = request('POST', config.server + '/api/event', options)
-    //.done(function (res) {
-        //console.log(res)    
-        console.log(("" +res.getBody()).substr(0,240) + "...");
-    //});
-    //console.log("before sleep")
-    sleep.msleep( config.sleep)
-    console.log(".")
-    sleep.msleep(config.sleep)
-    console.log(".")
+    options = {
+        "headers": {"Content-type":"application/xml", "channel": config.channelName },
+        body: line
+    }
 
-    //console.log("after sleep")
+    try {
+        var res = request('POST', config.server + '/api/epcis/event', options)
+        if (res.statusCode != 200) {
+            console.log(res.statusCode, "" + res.body)
+            delay() 
+            return
+        }
+        console.log(""+res.body)
+    } catch (err) {
+        console.log(err.message)
+    }
+
+    delay()
 
 });
 
 lr.on('end', function () {
 	// All lines are read, file is closed now.
 });
+
+function delay() {
+    sleep.msleep( config.sleep)
+    console.log(".")
+}
+
 
