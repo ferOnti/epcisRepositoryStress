@@ -8,12 +8,20 @@ var MongoClient = require('mongodb').MongoClient
 var sprintf = require('sprintf').sprintf;
 var dateFormat = require('dateformat');
 
-var step1 = require('./step1')
-var step2 = require('./step2')
-var step3 = require('./step3')
-var step4 = require('./step4')
-var step6 = require('./step6')
-var step7 = require('./step7')
+var step1 = require('./scnStep1')
+var step2 = require('./scnStep2')
+var step3 = require('./scnStep3')
+var step4 = require('./scnStep4')
+var step6 = require('./scnStep6')
+var step7 = require('./scnStep7')
+var step8 = require('./scnStep8')
+var step9 = require('./scnStep9')
+var step10 = require('./scnStep10')
+var step11 = require('./scnStep11')
+var step12 = require('./scnStep12')
+var step13 = require('./scnStep13')
+var step14 = require('./scnStep14')
+var step15 = require('./scnStep15')
 
 var url = config.mongodb
 var iteration = 0
@@ -29,15 +37,25 @@ function iterate() {
 		if (maxIteration == iteration-1) {
 			iterateResolve()
 		} else {
+			console.log("\niteration:", iteration)
 			return step1.execute()
 				.then(step2.execute)
 				.then(step3.execute)
 				.then(step4.execute) 
 				.then(step6.execute)
 				.then(step7.execute)
+				.then(step8.execute)
+				.then(step9.execute)
+				.then(step10.execute)
+				.then(step11.execute)
+				.then(step12.execute)
+				.then(step13.execute)
+				.then(step14.execute)
+				.then(step15.execute)
 				.then(()=>{
 					process.nextTick( iterate)
 				})
+				.catch((err)=>{console.error(err)})
 		}
 
 	})

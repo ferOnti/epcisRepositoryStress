@@ -1,9 +1,10 @@
 {
-	"server": "http://13.82.50.105:3000",
+	"server": "http://45.55.151.98:3000",
 	"server1": "http://10.100.1.209:3000",
-   	"output":  "supplyChainDemo/output.xml",
+   	"output":  "supplyChainNestle/output.xml",
+	"mongodb" : "mongodb://localhost:27017/supplyChainNestle", 	
    	"start": 0,
-   	"sleep": 10,
+   	"sleep": 500,
    	"channelName2": "only2",
    	"channelName": "externalchannel"
 }

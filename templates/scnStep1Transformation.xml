@@ -1,0 +1,35 @@
+<TransformationEvent>
+	<eventTime>{eventTime}</eventTime>
+	<recordTime>{recordTime}</recordTime>
+	<eventTimeZoneOffset>-04:00</eventTimeZoneOffset>
+	<baseExtension>
+		<eventID>{eventId}</eventID>
+	</baseExtension>
+	<inputEPCList>
+{inputEPCList}
+	</inputEPCList>
+    <inputQuantityList>
+    	<quantityElement>
+			<epcClass>urn:epc:class:lgtin:4012345.011111.{epcClass1}</epcClass>
+			<quantity>10</quantity>
+			<uom>KGM</uom>
+		</quantityElement>
+		<quantityElement>
+			<epcClass>urn:epc:class:lgtin:0614141.077777.{epcClass2}</epcClass>
+			<quantity>30</quantity>
+		</quantityElement>
+
+		<quantityElement>
+			<epcClass>urn:epc:idpat:sgtin:4012345.066666.*</epcClass>
+			<quantity>220</quantity>
+		</quantityElement>
+	</inputQuantityList>
+	<outputEPCList>
+{outputEPCList}
+	</outputEPCList>
+	<bizStep>urn:epcglobal:cbv:bizstep:commissioning</bizStep>
+	<disposition>urn:epcglobal:cbv:disp:in_progress</disposition>
+	<readPoint><id>{readPoint}</id></readPoint>
+	<bizLocation><id>{bizLocation}</id></bizLocation>
+</TransformationEvent>
+
